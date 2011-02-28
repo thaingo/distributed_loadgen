@@ -1,0 +1,42 @@
+ - churndelta: can be changed at any time (Not finished)
+ - db: cannot be changed during runtime (Not finished)
+ - dotransactions: cannot be changed during runtime (Not Finished)
+ - exporter: Cannot be changed during runtime (Not Finished)
+ - exportfile: Cannot be changed during runtime (Not Finished)
+ - fieldcount: (Not Finished) (Possible Removal)
+ - fieldlength: (Not Finished) (Possible Removal)
+ - histogram.buckets: Cannot be changed during runtime (Not Finished)
+ - insertcount: (Unknown)
+ - insertorder: (Unknown)
+ - insertstart: Specifies where to begin sets (Not Finished)
+ - keyprefix:
+ - label:
+ - maxscanlength:
+ - measurementtype: 
+ - memcached.address: 
+ - memcached.port: 
+ - memaddproportion: 
+ - memappendproportion: 
+ - memcasproportion: 
+ - memdecrproportion: 
+ - memdeleteproportion:
+ - memgetproportion:
+ - memgetsproportion: 
+ - memincrproporiton:
+ - memprependproportion:
+ - memreplaceproportion:
+ - memsetproportion:
+ - memupdateproportion:
+ - operationcount:
+ - printstatsinterval: (Finished)
+ - readallfields:
+ - recordcount:
+ - requestdistribution:
+ - scanlengthdistribution:
+ - target:
+ - threadcount:
+ - timeseries.granularity:
+ - valuelength:
+ - workingset:
+ - workload:
+ - writeallfields:

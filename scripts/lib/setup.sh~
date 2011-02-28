@@ -1,0 +1,17 @@
+#MACHINE_LIST="10.1.5.102 10.1.5.103 10.1.5.104"
+MACHINE_LIST="10.2.1.16 10.2.1.58 10.2.1.54"
+echo $MACHINE_LIST
+
+rm cluster.tar.gz;
+tar czf cluster.tar.gz ~/workspace/cluster;
+
+for i in $MACHINE_LIST;
+do
+    echo "Seting up $i";
+    ssh root@$i "pkill java"
+    ssh root@$i "rm -rf cluster*";
+    scp cluster.tar.gz root@$i:.;
+    ssh root@$i "tar xzf cluster.tar.gz";
+    ssh root@$i "cd cluster; ant";
+    ssh root@$i "cd cluster; ant run > /dev/null &";
+done
