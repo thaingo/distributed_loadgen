@@ -1,14 +1,14 @@
 #/bin/bash
 
-INTERVAL=1250;
-MAX_OPS=45000;
+INTERVAL=1666;
+MAX_OPS=60000;
 
 valuesize=2048;
 threads=16;
 opcount=10000000
 recordcount=10000000
 dotransactions=true;
-cur_ops=1250;
+cur_ops=1666;
 
 if [ $# -ne 1 ]; then
     echo "Invalid arguments: Must specify ip address as first and only argument";

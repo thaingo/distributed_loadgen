@@ -63,26 +63,13 @@ import com.couchbase.loadgen.memcached.Memcached;
  * </ul>
  */
 public class MemcachedCoreWorkload extends Workload {
-	private static final double DEF_ADD_PROP = 0.00;
-	private static final double DEF_APPEND_PROP = 0.00;
-	private static final double DEF_CAS_PROP = 0.00;
-	private static final double DEF_DECR_PROP = 0.00;
-	private static final double DEF_DELETE_PROP = 0.00;
-	private static final double DEF_GET_PROP = 1.00;
-	private static final double DEF_GETS_PROP = 0.00;
-	private static final double DEF_INCR_PROP = 0.00;
-	private static final double DEF_PREPEND_PROP = 0.00;
-	private static final double DEF_REPLACE_PROP = 0.00;
-	private static final double DEF_SET_PROP = 0.00;
-	private static final double DEF_UPDATE_PROP = 0.00;
-	
-	IntegerGenerator keysequence;
-	DiscreteGenerator operationchooser;
-	IntegerGenerator keychooser;
-	Generator fieldchooser;
-	CounterGenerator transactioninsertkeysequence;
+	private IntegerGenerator keysequence;
+	private DiscreteGenerator operationchooser;
+	private IntegerGenerator keychooser;
+	private Generator fieldchooser;
+	private CounterGenerator transactioninsertkeysequence;
 
-	boolean orderedinserts;
+	private boolean orderedinserts;
 	private String insert_order = "hashed";
 	private boolean dotransactions;
 	
@@ -106,18 +93,32 @@ public class MemcachedCoreWorkload extends Workload {
 		operationchooser = new DiscreteGenerator();
 		transactioninsertkeysequence = new CounterGenerator(recordcount);
 		
-		setAddProportion(DEF_ADD_PROP);
-		setAppendProportion(DEF_APPEND_PROP);
-		setCasProportion(DEF_CAS_PROP);
-		setDecrProportion(DEF_DECR_PROP);
-		setDeleteProportion(DEF_DELETE_PROP);
-		setGetProportion(DEF_GET_PROP);
-		setGetsProportion(DEF_GETS_PROP);
-		setIncrProportion(DEF_INCR_PROP);
-		setPrependProportion(DEF_PREPEND_PROP);
-		setReplaceProportion(DEF_REPLACE_PROP);
-		setSetProportion(DEF_SET_PROP);
-		setUpdateProportion(DEF_UPDATE_PROP);
+		Config cfg = Config.getConfig();
+		if (((Double)cfg.get(Config.MEMADD)).doubleValue() > 0) {
+			operationchooser.addValue(((Double)cfg.get(Config.MEMADD)).doubleValue(), "ADD");
+		} else if (((Double)cfg.get(Config.MEMAPPEND)).doubleValue() > 0) {
+			operationchooser.addValue(((Double)cfg.get(Config.MEMAPPEND)).doubleValue(), "APPEND");
+		} else if (((Double)cfg.get(Config.MEMCAS)).doubleValue() > 0) {
+			operationchooser.addValue(((Double)cfg.get(Config.MEMCAS)).doubleValue(), "CAS");
+		} else if (((Double)cfg.get(Config.MEMDECR)).doubleValue() > 0) {
+			operationchooser.addValue(((Double)cfg.get(Config.MEMDECR)).doubleValue(), "DECR");
+		} else if (((Double)cfg.get(Config.MEMDELETE)).doubleValue() > 0) {
+			operationchooser.addValue(((Double)cfg.get(Config.MEMDELETE)).doubleValue(), "DELETE");
+		} else if (((Double)cfg.get(Config.MEMGET)).doubleValue() > 0) {
+			operationchooser.addValue(((Double)cfg.get(Config.MEMGET)).doubleValue(), "GET");
+		} else if (((Double)cfg.get(Config.MEMGETS)).doubleValue() > 0) {
+			operationchooser.addValue(((Double)cfg.get(Config.MEMGETS)).doubleValue(), "GETS");
+		} else if (((Double)cfg.get(Config.MEMINCR)).doubleValue() > 0) {
+			operationchooser.addValue(((Double)cfg.get(Config.MEMINCR)).doubleValue(), "INCR");
+		} else if (((Double)cfg.get(Config.MEMPREPEND)).doubleValue() > 0) {
+			operationchooser.addValue(((Double)cfg.get(Config.MEMPREPEND)).doubleValue(), "PREPEND");
+		} else if (((Double)cfg.get(Config.MEMREPLACE)).doubleValue() > 0) {
+			operationchooser.addValue(((Double)cfg.get(Config.MEMREPLACE)).doubleValue(), "REPLACE");
+		} else if (((Double)cfg.get(Config.MEMSET)).doubleValue() > 0) {
+			operationchooser.addValue(((Double)cfg.get(Config.MEMSET)).doubleValue(), "SET");
+		} else if (((Double)cfg.get(Config.MEMUPDATE)).doubleValue() > 0) {
+			operationchooser.addValue(((Double)cfg.get(Config.MEMUPDATE)).doubleValue(), "UPDATE");
+		}
 
 		fieldchooser = new UniformIntegerGenerator(0, field_count - 1);
 	}
@@ -318,64 +319,5 @@ public class MemcachedCoreWorkload extends Workload {
 		String keyname = key_prefix + keynum;
 		String value = Utils.ASCIIString(value_length);
 		memcached.update(keyname, value);
-	}
-	
-	public void setAddProportion(double prop) {
-		updateProportion(prop, "ADD");
-	}
-	
-	public void setAppendProportion(double prop) {
-		updateProportion(prop, "APPEND");
-	}
-	
-	public void setCasProportion(double prop) {
-		updateProportion(prop, "CAS");
-	}
-	
-	public void setDecrProportion(double prop) {
-		updateProportion(prop, "DECR");
-	}
-	
-	public void setDeleteProportion(double prop) {
-		updateProportion(prop, "DELETE");
-	}
-	
-	public void setGetProportion(double prop) {
-		updateProportion(prop, "GET");
-	}
-	
-	public void setGetsProportion(double prop) {
-		updateProportion(prop, "GETS");
-	}
-	
-	public void setIncrProportion(double prop) {
-		updateProportion(prop, "INCR");
-	}
-	
-	public void setPrependProportion(double prop) {
-		updateProportion(prop, "PREPEND");
-	}
-	
-	public void setReplaceProportion(double prop) {
-		updateProportion(prop, "REPLACE");
-	}
-	
-	public void setSetProportion(double prop) {
-		updateProportion(prop, "SET");
-	}
-	
-	public void setUpdateProportion(double prop) {
-		updateProportion(prop, "UPDATE");
-	}
-	
-	private void updateProportion(double prop, String value) {
-		operationchooser.removeValue(value);
-		if (prop > 0) {
-			operationchooser.addValue(prop, value);
-		}
-	}
-	
-	public void doTransactions(boolean dotransactions) {
-		this.dotransactions = dotransactions;
 	}
 }

@@ -1,11 +1,11 @@
 Java Load Generator:
 
-1. Be able to change transaction proportions from rest interface.
 2. Be able to change transaction proportion on the fly from the rest interface.
 3. Have return codes successfully passed between nodes.
-4. Write a shell script to automate a simple step test.
 5. Throughput needs to be able to detect the number of client machines and adjust appropriately.
 6. server-list should correctly print out all servers in the cluster.
+
+
 10. Implement the JsonStringDecoder class and have functions decoding JSON use it.
 11. Have functions building JSON strings use the JsonStringBuilder class.
 12. Make it so that certain parameters cannot be changed during runtime
