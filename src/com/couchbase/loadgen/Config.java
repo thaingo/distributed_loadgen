@@ -24,15 +24,12 @@ public class Config {
 	public static final String DO_TRANSACTIONS = "dotransactions";
 	public static final String EXPORTER = "exporter";
 	public static final String EXPORT_FILE = "exportfile";
-	public static final String FIELD_COUNT = "fieldcount";
-	public static final String FIELD_LENGTH = "fieldlength";
 	public static final String HISTOGRAM_BUCKET = "histogram.buckets";
 	public static final String INSERT_COUNT = "insertcount";
 	public static final String INSERT_ORDER = "insertorder";
 	public static final String INSERT_START = "insertstart";
 	public static final String KEY_PREFIX = "keyprefix";
 	public static final String LABEL = "label";
-	public static final String MAX_SCAN_LENGTH = "maxscanlength";
 	public static final String MEASUREMENT_TYPE = "measurementtype";
 	public static final String MEMCACHED_ADDRESS = "memcached.address";
 	public static final String MEMCACHED_PORT = "memcached.port";
@@ -51,17 +48,13 @@ public class Config {
 	public static final String OP_COUNT = "operationcount";
 	public static final String PROTOCOL = "protocol";
 	public static final String PRINT_STATS_INTERVAL = "printstatsinterval";
-	public static final String READ_ALL_FIELDS = "readallfields";
 	public static final String RECORD_COUNT = "recordcount";
 	public static final String REQUEST_DISTRIBUTION = "requestdistribution";
-	public static final String SCAN_LENGTH_DISTRIBUTION = "scanlengthdistribution";
 	public static final String TARGET = "target";
 	public static final String THREAD_COUNT = "threadcount";
-	public static final String TIMESERIES_GRANULARITY = "timeseries.granularity";
 	public static final String VALUE_LENGTH = "valuelength";
 	public static final String WORKING_SET = "workingset";
 	public static final String WORKLOAD = "workload";
-	public static final String WRITE_ALL_FIELDS = "writeallfields";
 
 	private HashMap<String, Object> properties;
 
@@ -72,14 +65,11 @@ public class Config {
 		properties.put(DO_TRANSACTIONS, new Boolean(true));
 		properties.put(EXPORTER, "com.couchbase.loadgen.measurements.exporter.TextMeasurementsExporter");
 		properties.put(EXPORT_FILE, new String());
-		properties.put(FIELD_COUNT, new Integer(10));
-		properties.put(FIELD_LENGTH, new Integer(100));
 		properties.put(HISTOGRAM_BUCKET, new Integer(20));
 		properties.put(INSERT_ORDER, "hashed");
 		properties.put(INSERT_START, new Integer(0));
 		properties.put(KEY_PREFIX, "user");
 		properties.put(LABEL, "");
-		properties.put(MAX_SCAN_LENGTH, new Integer(1000));
 		properties.put(MEASUREMENT_TYPE, "histogram");
 		properties.put(MEMCACHED_ADDRESS, "10.2.1.11");
 		properties.put(MEMCACHED_PORT, new Integer(11211));
@@ -98,16 +88,12 @@ public class Config {
 		properties.put(OP_COUNT, new Integer(100000));
 		properties.put(PRINT_STATS_INTERVAL, new Integer(5));
 		properties.put(PROTOCOL, "ascii");
-		properties.put(READ_ALL_FIELDS, new Boolean(true));
 		properties.put(RECORD_COUNT, new Integer(10000));
 		properties.put(REQUEST_DISTRIBUTION, "churn");
-		properties.put(SCAN_LENGTH_DISTRIBUTION, "uniform");
 		properties.put(TARGET, new Integer(5000));
 		properties.put(THREAD_COUNT, new Integer(16));
-		properties.put(TIMESERIES_GRANULARITY, new Integer(1000));
 		properties.put(WORKING_SET, new Integer(5));
 		properties.put(VALUE_LENGTH, new Integer(256));
-		properties.put(WRITE_ALL_FIELDS, new Boolean(false));
 	}
 	
 	public static Config getConfig() {

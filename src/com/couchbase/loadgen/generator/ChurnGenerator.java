@@ -20,6 +20,7 @@ package com.couchbase.loadgen.generator;
 import java.util.Random;
 
 import com.couchbase.loadgen.Config;
+import com.couchbase.loadgen.cluster.ClusterManager;
 
 /**
  * Generate a popularity distribution of items, skewed to favor recent items
@@ -37,7 +38,7 @@ public class ChurnGenerator extends IntegerGenerator {
 	public ChurnGenerator() {
 		_r = new Random();
 		this.workingsetsize = 0;
-		this.workingsetmaxsize = ((Integer)Config.getConfig().get(Config.WORKING_SET));
+		this.workingsetmaxsize = ((Integer)Config.getConfig().get(Config.WORKING_SET)) / ClusterManager.getManager().getClusterSize();
 		this.workingset = new int[workingsetmaxsize];
 		this.recordcount = ((Integer)Config.getConfig().get(Config.RECORD_COUNT));
 		ops = 0;
