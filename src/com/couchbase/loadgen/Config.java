@@ -67,7 +67,7 @@ public class Config {
 
 	private Config() {
 		properties = new HashMap<String, Object>();
-		properties.put(CHURN_DELTA, new Integer(1));
+		properties.put(CHURN_DELTA, new Integer(100000));
 		properties.put(DB, new String());
 		properties.put(DO_TRANSACTIONS, new Boolean(true));
 		properties.put(EXPORTER, "com.couchbase.loadgen.measurements.exporter.TextMeasurementsExporter");
@@ -100,12 +100,12 @@ public class Config {
 		properties.put(PROTOCOL, "ascii");
 		properties.put(READ_ALL_FIELDS, new Boolean(true));
 		properties.put(RECORD_COUNT, new Integer(10000));
-		properties.put(REQUEST_DISTRIBUTION, "zipfian");
+		properties.put(REQUEST_DISTRIBUTION, "churn");
 		properties.put(SCAN_LENGTH_DISTRIBUTION, "uniform");
 		properties.put(TARGET, new Integer(5000));
 		properties.put(THREAD_COUNT, new Integer(16));
 		properties.put(TIMESERIES_GRANULARITY, new Integer(1000));
-		properties.put(WORKING_SET, new Integer(1));
+		properties.put(WORKING_SET, new Integer(5));
 		properties.put(VALUE_LENGTH, new Integer(256));
 		properties.put(WRITE_ALL_FIELDS, new Boolean(false));
 	}

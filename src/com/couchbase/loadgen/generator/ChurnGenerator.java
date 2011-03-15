@@ -19,6 +19,8 @@ package com.couchbase.loadgen.generator;
 
 import java.util.Random;
 
+import com.couchbase.loadgen.Config;
+
 /**
  * Generate a popularity distribution of items, skewed to favor recent items
  * significantly more than older items.
@@ -29,17 +31,15 @@ public class ChurnGenerator extends IntegerGenerator {
 	int[] workingset;
 	int workingsetsize;
 	int workingsetmaxsize;
-	int workingsetdelta;
 	int ops;
 	
 
-	public ChurnGenerator(int workingsetmaxsize, int workingsetdelta, int recordcount) {
+	public ChurnGenerator() {
 		_r = new Random();
-		this.workingset = new int[workingsetmaxsize];
 		this.workingsetsize = 0;
-		this.workingsetmaxsize = workingsetmaxsize;
-		this.workingsetdelta = workingsetdelta;
-		this.recordcount = recordcount;
+		this.workingsetmaxsize = ((Integer)Config.getConfig().get(Config.WORKING_SET));
+		this.workingset = new int[workingsetmaxsize];
+		this.recordcount = ((Integer)Config.getConfig().get(Config.RECORD_COUNT));
 		ops = 0;
 		nextInt();
 	}
@@ -49,6 +49,8 @@ public class ChurnGenerator extends IntegerGenerator {
 	 * items most recently returned by the basis generator.
 	 */
 	public int nextInt() {
+		int workingsetdelta = ((Integer)Config.getConfig().get(Config.CHURN_DELTA));
+		
 		while (workingsetsize < workingsetmaxsize) {
 			workingset[workingsetsize] = _r.nextInt(recordcount);
 			workingsetsize++;
@@ -72,9 +74,8 @@ public class ChurnGenerator extends IntegerGenerator {
 	}
 
 	public static void main(String[] args) {
-		int recordcount = 100;
-		int[] keys = new int[recordcount];
-		ChurnGenerator gen = new ChurnGenerator(5, 100, recordcount);
+		int[] keys = new int[((Integer)Config.getConfig().get(Config.RECORD_COUNT))];
+		ChurnGenerator gen = new ChurnGenerator();
 		for (int i = 0; i < Integer.parseInt(args[0]); i++) {
 			keys[Integer.parseInt(gen.nextString())]++;
 		}

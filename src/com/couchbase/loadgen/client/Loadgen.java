@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.couchbase.loadgen.Config;
 import com.couchbase.loadgen.cluster.ClusterManager;
 import com.couchbase.loadgen.exception.WorkloadException;
+import com.couchbase.loadgen.generator.ChurnGenerator;
 import com.couchbase.loadgen.generator.IntegerGenerator;
 import com.couchbase.loadgen.generator.ScrambledZipfianGenerator;
 import com.couchbase.loadgen.memcached.SpymemcachedClient;
@@ -24,28 +25,43 @@ public class Loadgen extends Thread {
 	
 	public void run() {
 		// Run the client threads
-		int opcount = ((Integer)cfg.get(Config.OP_COUNT)).intValue();
-		double memset = ((Double)cfg.get(Config.MEMSET)).doubleValue();
-		int record_count = ((Integer)cfg.get(Config.RECORD_COUNT)).intValue();
-		int expectednewkeys = (int) (((double) opcount) * memset * 2.0);
 		int threadcount = ((Integer)Config.getConfig().get(Config.THREAD_COUNT)).intValue();
-		
-		IntegerGenerator keychooser = new ScrambledZipfianGenerator(record_count + expectednewkeys);
+		IntegerGenerator keychooser = getRequestDistribution();
 		Workload workload = new MemcachedCoreWorkload(keychooser);
 		
-		pool = new ClientThreadPool(threadcount, workload, SpymemcachedClient.CLASSNAME);
-		pool.join();
-		
-		// Cleanup the worker threads workspace
-		try {
-			workload.cleanup();
-		} catch (WorkloadException e) {
-			e.printStackTrace(System.out);
-			System.exit(0);
+		if (workload != null) {
+			pool = new ClientThreadPool(threadcount, workload, SpymemcachedClient.CLASSNAME);
+			pool.join();
+			
+			// Cleanup the worker threads workspace
+			try {
+				workload.cleanup();
+			} catch (WorkloadException e) {
+				e.printStackTrace(System.out);
+				System.exit(0);
+			}
 		}
 		
 		ClusterManager.getManager().finishedLoadGeneration();
 		LOG.info("Load generation finished");
+	}
+	
+	private IntegerGenerator getRequestDistribution() {
+		String rdistribution = (String)Config.getConfig().get(Config.REQUEST_DISTRIBUTION);
+		
+		if (rdistribution.equals("zipfian")) {
+			int recordcount = ((Integer)cfg.get(Config.RECORD_COUNT)).intValue();
+			int opcount = ((Integer)cfg.get(Config.OP_COUNT)).intValue();
+			double memset = ((Double)cfg.get(Config.MEMSET)).doubleValue();
+			int expectednewkeys = (int) (((double) opcount) * memset * 2.0);
+			
+			return new ScrambledZipfianGenerator(recordcount + expectednewkeys);
+		} else if (rdistribution.equals("churn")) {
+			return new ChurnGenerator();
+		} else {
+			LOG.error("Invalid request distribution");
+			return null;
+		}
 	}
 	
 	public void terminate() {

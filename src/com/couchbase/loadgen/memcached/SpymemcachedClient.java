@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.couchbase.loadgen.Config;
+import com.couchbase.loadgen.cluster.ClusterManager;
 
 import net.spy.memcached.BinaryConnectionFactory;
 import net.spy.memcached.CASResponse;
@@ -52,6 +53,7 @@ public class SpymemcachedClient extends Memcached {
 				client = new MemcachedClient(ia);
 			} else {
 				LOG.info("ERROR: BAD PROTOCOL");
+				ClusterManager.getManager().finishedLoadGeneration();
 			}
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
