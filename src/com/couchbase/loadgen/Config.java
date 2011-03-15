@@ -49,6 +49,7 @@ public class Config {
 	public static final String MEMSET = "memsetproportion";
 	public static final String MEMUPDATE = "memupdateproportion";
 	public static final String OP_COUNT = "operationcount";
+	public static final String PROTOCOL = "protocol";
 	public static final String PRINT_STATS_INTERVAL = "printstatsinterval";
 	public static final String READ_ALL_FIELDS = "readallfields";
 	public static final String RECORD_COUNT = "recordcount";
@@ -96,6 +97,7 @@ public class Config {
 		properties.put(MEMUPDATE, new Double(0.0));
 		properties.put(OP_COUNT, new Integer(100000));
 		properties.put(PRINT_STATS_INTERVAL, new Integer(5));
+		properties.put(PROTOCOL, "ascii");
 		properties.put(READ_ALL_FIELDS, new Boolean(true));
 		properties.put(RECORD_COUNT, new Integer(10000));
 		properties.put(REQUEST_DISTRIBUTION, "zipfian");

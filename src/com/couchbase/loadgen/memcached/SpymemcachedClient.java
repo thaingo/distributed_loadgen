@@ -4,9 +4,13 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.couchbase.loadgen.Config;
 
@@ -16,7 +20,10 @@ import net.spy.memcached.MemcachedClient;
 
 
 public class SpymemcachedClient extends Memcached {
+	private static final Logger LOG = LoggerFactory.getLogger(SpymemcachedClient.class);
 	public static final String CLASSNAME = "com.couchbase.loadgen.memcached.SpymemcachedClient";
+	public static final String PROTO_ASCII = "ascii";
+	public static final String PROTO_BINARY = "binary";
 	MemcachedClient client;
 	
 	public static long endtime;
@@ -36,10 +43,16 @@ public class SpymemcachedClient extends Memcached {
 	public void init() {
 		int membaseport = ((Integer) Config.getConfig().get(Config.MEMCACHED_PORT)).intValue();
 		String addr = (String) Config.getConfig().get(Config.MEMCACHED_ADDRESS);
+		String protocol = (String) Config.getConfig().get(Config.PROTOCOL);
 		try {
 			InetSocketAddress ia = new InetSocketAddress(InetAddress.getByAddress(ipv4AddressToByte(addr)), membaseport);
-			//client = new MemcachedClient(new BinaryConnectionFactory(), Arrays.asList(ia));
-			client = new MemcachedClient(ia);
+			if (protocol.equals(PROTO_BINARY)) {
+				client = new MemcachedClient(new BinaryConnectionFactory(), Arrays.asList(ia));
+			} else if (protocol.equals(PROTO_ASCII)) {
+				client = new MemcachedClient(ia);
+			} else {
+				LOG.info("ERROR: BAD PROTOCOL");
+			}
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e1) {
