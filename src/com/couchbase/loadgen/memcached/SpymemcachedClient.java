@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -38,12 +36,10 @@ public class SpymemcachedClient extends Memcached {
 	public void init() {
 		int membaseport = ((Integer) Config.getConfig().get(Config.MEMCACHED_PORT)).intValue();
 		String addr = (String) Config.getConfig().get(Config.MEMCACHED_ADDRESS);
-		
 		try {
 			InetSocketAddress ia = new InetSocketAddress(InetAddress.getByAddress(ipv4AddressToByte(addr)), membaseport);
-			List<InetSocketAddress> addrlist = new LinkedList<InetSocketAddress>();
-			addrlist.add(ia);
-			client = new MemcachedClient(new BinaryConnectionFactory(), addrlist);
+			//client = new MemcachedClient(new BinaryConnectionFactory(), Arrays.asList(ia));
+			client = new MemcachedClient(ia);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e1) {
@@ -75,9 +71,8 @@ public class SpymemcachedClient extends Memcached {
 	
 	@Override
 	public int get(String key, Object value) {
-		long st = System.currentTimeMillis();
 		Future<Object> f = client.asyncGet(key);
-		//long time = System.nanoTime();
+
 		try {
 			if (f.get() == null) {
 				System.out.println("GET: error getting data");
@@ -90,14 +85,15 @@ public class SpymemcachedClient extends Memcached {
 			e.printStackTrace();
 			return -2;
 		} catch (RuntimeException e) {
-			System.out.println("GET Runtime: " + (System.currentTimeMillis() - st));
+			System.out.println("GET Runtime");
 			return -3;
 		}
-		//System.out.println("Start: " + time);
-		//System.out.println("Start: " + endtime);
-		//System.out.println("Spy latency: " + ((endtime - time)/1000));
 		return 0;
 	}
+	
+	/*public long qGet(String key, Object value) {
+		return client.ag(key);
+	}*/
 	
 	@Override
 	public int set(String key, Object value) {

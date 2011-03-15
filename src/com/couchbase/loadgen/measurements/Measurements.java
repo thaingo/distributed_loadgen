@@ -41,7 +41,7 @@ public class Measurements {
 	public void reportReturnCode(String operation, int code) {
 		total.reportReturnCode(operation, code);
 		interval.reportReturnCode(operation, code);
-		//current.reportReturnCode(operation, code);
+		current.reportReturnCode(operation, code);
 	}
 
 	public synchronized void addMeasurement(String json) {

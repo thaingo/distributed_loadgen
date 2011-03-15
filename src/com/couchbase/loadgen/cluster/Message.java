@@ -2,9 +2,11 @@ package com.couchbase.loadgen.cluster;
 
 public class Message {
 	public static final byte MAGIC = (byte) 60;
-	public static final byte OP_CONFIG = (byte) 13;
-	public static final byte OP_STATS = (byte) 15;
-	public static final byte OP_EXECUTE = (byte) 19;
+	public static final byte OP_CONFIG = (byte) 11;
+	public static final byte OP_STATS = (byte) 13;
+	public static final byte OP_START = (byte) 15;
+	public static final byte OP_FINISH = (byte) 17;
+	public static final byte OP_STOP = (byte) 19;
 	
 	private static final int MAGIC_OFFSET = 0;
 	private static final int OPCODE_OFFSET = 1;

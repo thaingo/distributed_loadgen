@@ -4,11 +4,11 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="lib/grizzly-framework.jar"/>
 	<classpathentry kind="lib" path="lib/grizzly-utils.jar"/>
-	<classpathentry kind="lib" path="lib/shoal-gms.jar"/>
+	<classpathentry kind="lib" path="lib/shoal-gms.jar" sourcepath="/Users/mikewied/Documents/shoal/shoal-gms-src"/>
 	<classpathentry kind="lib" path="lib/jackson-core-asl-1.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/jackson-mapper-asl-1.5.2.jar"/>
 	<classpathentry kind="lib" path="lib/memcached-2.5-27-gc7bc636-sources.jar"/>
-	<classpathentry kind="lib" path="lib/memcached-2.5-27-gc7bc636.jar"/>
+	<classpathentry kind="lib" path="lib/memcached-2.5-27-gc7bc636.jar" sourcepath="lib/memcached-2.5-27-gc7bc636-sources.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-simple-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/org.restlet.jar"/>

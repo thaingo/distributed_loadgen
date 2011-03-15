@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.couchbase.loadgen.Config;
 import com.couchbase.loadgen.DataStore;
+import com.couchbase.loadgen.cluster.ClusterManager;
 import com.couchbase.loadgen.exception.DataStoreException;
 import com.couchbase.loadgen.exception.UnknownDataStoreException;
 import com.couchbase.loadgen.memcached.MemcachedFactory;
@@ -60,7 +61,7 @@ public class ClientThreadPool extends ThreadGroup {
 	}
 
 	protected synchronized boolean getTask() {
-		int target = ((Integer) Config.getConfig().get(Config.TARGET)).intValue();
+		int target = ((Integer) Config.getConfig().get(Config.TARGET)).intValue() / ClusterManager.getManager().getClusterSize();
 		if (target != lastTarget) {
 			lastTarget = target;
 			opsdone = 0;
@@ -79,6 +80,7 @@ public class ClientThreadPool extends ThreadGroup {
 		if (!isAlive || ops <= 0) {
 			return false;
 		}
+		//System.out.println("Doing operation");
 		ops--;
 		opsdone++;
 		return true;
@@ -109,6 +111,7 @@ public class ClientThreadPool extends ThreadGroup {
 	private class PooledThread extends Thread {
 		private Workload workload;
 		private DataStore db;
+		//private BlockingQueue opqueue;
 		
 		public PooledThread(Workload workload, DataStore db) {
 			super(ClientThreadPool.this, "PooledThread-" + (threadID++));
@@ -118,6 +121,7 @@ public class ClientThreadPool extends ThreadGroup {
 
 		public void run() {
 			while (!isInterrupted() && getTask()) {
+				//System.out.println(getId() + " is doing teansaction");
 				workload.doOperation(db);
 			}
 			

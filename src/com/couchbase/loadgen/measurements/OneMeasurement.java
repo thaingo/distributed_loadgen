@@ -67,8 +67,8 @@ public abstract class OneMeasurement implements Serializable {
 	
 	public String computeTime(double time) {
 		int i;
-		for (i = 0; time > 1024 && i < 2; i++)
-			time = time / 1024;
+		for (i = 0; time >= 1000 && i < 2; i++)
+			time = time / 1000;
 		
 		time = Math.round(time * 100) / 100.0;
 		if (i == 0)
@@ -82,8 +82,8 @@ public abstract class OneMeasurement implements Serializable {
 	
 	public String computeTime(int time) {
 		int i;
-		for (i = 0; time > 1024 && i < 2; i++)
-			time = time / 1024;
+		for (i = 0; time >= 1000 && i < 2; i++)
+			time = time / 1000;
 		
 		if (i == 0)
 			return String.format("%-6s", (Integer.toString(time) + "us"));

@@ -55,6 +55,8 @@ elif [ "set-value" == "$COMMAND" ]; then
     curl "http://$HOST:$PORT/cluster/set-value?name=$3&value=$4";
 elif [ "set-config" == "$COMMAND" ]; then
     printhelp;
+elif [ "get-stats" == "$COMMAND" ]; then
+    curl "http://$HOST:$PORT/cluster/get-stats";
 else
     echo "Command $1 not valid";
     printhelp;

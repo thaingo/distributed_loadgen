@@ -94,10 +94,12 @@ public class Stats {
 			return null;
 		}
 		
+		//System.out.println("Encode: " + builder.toString());
 		return builder.toString();
 	}
 	
 	public void decodeJson(String json) {
+		//System.out.println("Decode: " + json);
 		JsonFactory factory = new JsonFactory();
 		try {
 			JsonParser p = factory.createJsonParser(json.getBytes());
@@ -108,7 +110,6 @@ public class Stats {
 				operations += p.getIntValue();
 			}
 			while(p.nextToken() != JsonToken.END_OBJECT) {
-				//System.out.println(p.getCurrentName());
 				if (!measurements.containsKey(p.getCurrentName()))
 					measurements.put(p.getCurrentName(), constructOneMeasurement(p.getCurrentName()));
 				measurements.get(p.getCurrentName()).decodeJson(p);

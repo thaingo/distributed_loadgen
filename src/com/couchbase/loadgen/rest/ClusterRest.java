@@ -4,6 +4,7 @@ import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.routing.Router;
 
+import com.couchbase.loadgen.rest.ops.GetStats;
 import com.couchbase.loadgen.rest.ops.GetValue;
 import com.couchbase.loadgen.rest.ops.SetValue;
 import com.couchbase.loadgen.rest.ops.GetConfig;
@@ -28,6 +29,7 @@ public class ClusterRest extends Application {
 		router.attach("/get-config", GetConfig.class);
 		router.attach("/get-value", GetValue.class);
 		router.attach("/set-value", SetValue.class);
+		router.attach("/get-stats", GetStats.class);
 
 		return router;
 	}

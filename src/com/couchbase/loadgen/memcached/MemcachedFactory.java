@@ -46,7 +46,7 @@ public class MemcachedFactory {
 			e.printStackTrace();
 		}
 
-		return new MemcachedWrapper(ret);
+		return new MemcachedImpl(ret);
 	}
 
 }

@@ -22,9 +22,7 @@ import com.couchbase.loadgen.DataStore;
 import com.couchbase.loadgen.Utils;
 import com.couchbase.loadgen.generator.CounterGenerator;
 import com.couchbase.loadgen.generator.DiscreteGenerator;
-import com.couchbase.loadgen.generator.Generator;
 import com.couchbase.loadgen.generator.IntegerGenerator;
-import com.couchbase.loadgen.generator.UniformIntegerGenerator;
 import com.couchbase.loadgen.memcached.Memcached;
 
 /**
@@ -66,7 +64,6 @@ public class MemcachedCoreWorkload extends Workload {
 	private IntegerGenerator keysequence;
 	private DiscreteGenerator operationchooser;
 	private IntegerGenerator keychooser;
-	private Generator fieldchooser;
 	private CounterGenerator transactioninsertkeysequence;
 
 	private boolean orderedinserts;
@@ -75,7 +72,6 @@ public class MemcachedCoreWorkload extends Workload {
 	
 	public int field_count = 10;
 	public String key_prefix = "user";
-	public int value_length = 2048;
 
 	public MemcachedCoreWorkload(IntegerGenerator keychooser) {
 		int recordcount = ((Integer)Config.getConfig().get(Config.RECORD_COUNT)).intValue();
@@ -94,33 +90,30 @@ public class MemcachedCoreWorkload extends Workload {
 		transactioninsertkeysequence = new CounterGenerator(recordcount);
 		
 		Config cfg = Config.getConfig();
-		if (((Double)cfg.get(Config.MEMADD)).doubleValue() > 0) {
+		if (((Double)cfg.get(Config.MEMADD)).doubleValue() > 0)
 			operationchooser.addValue(((Double)cfg.get(Config.MEMADD)).doubleValue(), "ADD");
-		} else if (((Double)cfg.get(Config.MEMAPPEND)).doubleValue() > 0) {
+		if (((Double)cfg.get(Config.MEMAPPEND)).doubleValue() > 0)
 			operationchooser.addValue(((Double)cfg.get(Config.MEMAPPEND)).doubleValue(), "APPEND");
-		} else if (((Double)cfg.get(Config.MEMCAS)).doubleValue() > 0) {
+		if (((Double)cfg.get(Config.MEMCAS)).doubleValue() > 0)
 			operationchooser.addValue(((Double)cfg.get(Config.MEMCAS)).doubleValue(), "CAS");
-		} else if (((Double)cfg.get(Config.MEMDECR)).doubleValue() > 0) {
+		if (((Double)cfg.get(Config.MEMDECR)).doubleValue() > 0)
 			operationchooser.addValue(((Double)cfg.get(Config.MEMDECR)).doubleValue(), "DECR");
-		} else if (((Double)cfg.get(Config.MEMDELETE)).doubleValue() > 0) {
+		if (((Double)cfg.get(Config.MEMDELETE)).doubleValue() > 0)
 			operationchooser.addValue(((Double)cfg.get(Config.MEMDELETE)).doubleValue(), "DELETE");
-		} else if (((Double)cfg.get(Config.MEMGET)).doubleValue() > 0) {
+		if (((Double)cfg.get(Config.MEMGET)).doubleValue() > 0)
 			operationchooser.addValue(((Double)cfg.get(Config.MEMGET)).doubleValue(), "GET");
-		} else if (((Double)cfg.get(Config.MEMGETS)).doubleValue() > 0) {
+		if (((Double)cfg.get(Config.MEMGETS)).doubleValue() > 0)
 			operationchooser.addValue(((Double)cfg.get(Config.MEMGETS)).doubleValue(), "GETS");
-		} else if (((Double)cfg.get(Config.MEMINCR)).doubleValue() > 0) {
+		if (((Double)cfg.get(Config.MEMINCR)).doubleValue() > 0)
 			operationchooser.addValue(((Double)cfg.get(Config.MEMINCR)).doubleValue(), "INCR");
-		} else if (((Double)cfg.get(Config.MEMPREPEND)).doubleValue() > 0) {
+		if (((Double)cfg.get(Config.MEMPREPEND)).doubleValue() > 0)
 			operationchooser.addValue(((Double)cfg.get(Config.MEMPREPEND)).doubleValue(), "PREPEND");
-		} else if (((Double)cfg.get(Config.MEMREPLACE)).doubleValue() > 0) {
+		if (((Double)cfg.get(Config.MEMREPLACE)).doubleValue() > 0)
 			operationchooser.addValue(((Double)cfg.get(Config.MEMREPLACE)).doubleValue(), "REPLACE");
-		} else if (((Double)cfg.get(Config.MEMSET)).doubleValue() > 0) {
+		if (((Double)cfg.get(Config.MEMSET)).doubleValue() > 0)
 			operationchooser.addValue(((Double)cfg.get(Config.MEMSET)).doubleValue(), "SET");
-		} else if (((Double)cfg.get(Config.MEMUPDATE)).doubleValue() > 0) {
+		if (((Double)cfg.get(Config.MEMUPDATE)).doubleValue() > 0)
 			operationchooser.addValue(((Double)cfg.get(Config.MEMUPDATE)).doubleValue(), "UPDATE");
-		}
-
-		fieldchooser = new UniformIntegerGenerator(0, field_count - 1);
 	}
 	
 	public boolean doOperation(DataStore memcached) {
@@ -143,6 +136,7 @@ public class MemcachedCoreWorkload extends Workload {
 			keynum = Utils.hash(keynum);
 		}
 		String dbkey = key_prefix + keynum;
+		int value_length = ((Integer)Config.getConfig().get(Config.VALUE_LENGTH)).intValue();
 		String value = Utils.ASCIIString(value_length);
 		
 		if (((Memcached)memcached).set(dbkey, value) == 0)
@@ -196,6 +190,7 @@ public class MemcachedCoreWorkload extends Workload {
 			keynum = Utils.hash(keynum);
 		}
 		String dbkey = key_prefix + keynum;
+		int value_length = ((Integer)Config.getConfig().get(Config.VALUE_LENGTH)).intValue();
 		String value = Utils.ASCIIString(value_length);
 		memcached.add(dbkey, value);
 	}
@@ -224,6 +219,7 @@ public class MemcachedCoreWorkload extends Workload {
 		}
 		String key = key_prefix + keynum;
 		long cas = memcached.gets(key);
+		int value_length = ((Integer)Config.getConfig().get(Config.VALUE_LENGTH)).intValue();
 		String value = Utils.ASCIIString(value_length);
 		memcached.cas(key, cas, value);
 	}
@@ -289,6 +285,7 @@ public class MemcachedCoreWorkload extends Workload {
 			keynum = Utils.hash(keynum);
 		}
 		String key = key_prefix + keynum;
+		int value_length = ((Integer)Config.getConfig().get(Config.VALUE_LENGTH)).intValue();
 		String value = Utils.ASCIIString(value_length);
 		memcached.replace(key, value);
 	}
@@ -303,6 +300,7 @@ public class MemcachedCoreWorkload extends Workload {
 			keynum = Utils.hash(keynum);
 		}
 		String keyname = key_prefix + keynum;
+		int value_length = ((Integer)Config.getConfig().get(Config.VALUE_LENGTH)).intValue();
 		String value = Utils.ASCIIString(value_length);
 		memcached.set(keyname, value);
 	}
@@ -317,6 +315,7 @@ public class MemcachedCoreWorkload extends Workload {
 			keynum = Utils.hash(keynum);
 		}
 		String keyname = key_prefix + keynum;
+		int value_length = ((Integer)Config.getConfig().get(Config.VALUE_LENGTH)).intValue();
 		String value = Utils.ASCIIString(value_length);
 		memcached.update(keyname, value);
 	}

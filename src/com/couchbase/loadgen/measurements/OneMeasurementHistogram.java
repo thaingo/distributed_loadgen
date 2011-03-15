@@ -19,7 +19,6 @@ package com.couchbase.loadgen.measurements;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
@@ -38,9 +37,12 @@ import com.couchbase.loadgen.measurements.exporter.MeasurementsExporter;
  */
 public class OneMeasurementHistogram extends OneMeasurement {
 	private static final long serialVersionUID = 8771477575164658300L;
+	private Object lock = new Object();
+	private static final int microhistogramlength = 5;
+	private static final int millihistogramlength = 10;
 	
-	int buckets = 20;
-	int[] histogram;
+	int[] microhistogram;
+	int[] millihistogram;
 	int histogramoverflow;
 	int operations;
 	long totallatency;
@@ -52,7 +54,8 @@ public class OneMeasurementHistogram extends OneMeasurement {
 
 	public OneMeasurementHistogram(String name) {
 		super(name);
-		histogram = new int[buckets];
+		microhistogram = new int[microhistogramlength];
+		millihistogram = new int[millihistogramlength];
 		histogramoverflow = 0;
 		operations = 0;
 		totallatency = 0;
@@ -82,26 +85,37 @@ public class OneMeasurementHistogram extends OneMeasurement {
 	 * 
 	 * @see com.yahoo.ycsb.OneMeasurement#measure(int)
 	 */
-	public synchronized void measure(int latency) {
-		if (((int)Math.pow(2.0, (double)(buckets - 1)) < latency))
-			histogramoverflow++;
-		
-		for (int i = 0; i < buckets - 1; i++) {
-			if (latency < Math.pow(2.0, (double)(i + exp_offset))) {
-				histogram[i]++;
-				break;
+	public void measure(int latency) {
+		synchronized(lock) {
+			if (((int)Math.pow(2.0, (double)millihistogramlength) * 1000) < latency)
+				histogramoverflow++;
+			
+			for (int i = 0; i < microhistogramlength; i++) {
+				if (latency >= (i * 200) && latency < ((i + 1) * 200)) {
+					microhistogram[i]++;
+					break;
+				}
 			}
-		}
-		
-		operations++;
-		totallatency += latency;
-		
-		if ((min < 0) || (latency < min)) {
-			min = latency;
-		}
-
-		if ((max < 0) || (latency > max)) {
-			max = latency;
+			
+			for (int i = 0; i < millihistogramlength; i++) {
+				int intervalmin = (int)Math.pow(2.0, (double)(i)) * 1000;
+				int intervalmax = (int)Math.pow(2.0, (double)(i + 1)) * 1000;
+				if (latency >= intervalmin && latency < intervalmax) {
+					millihistogram[i]++;
+					break;
+				}
+			}
+			
+			operations++;
+			totallatency += latency;
+			
+			if ((min < 0) || (latency < min)) {
+				min = latency;
+			}
+	
+			if ((max < 0) || (latency > max)) {
+				max = latency;
+			}
 		}
 	}
 
@@ -112,27 +126,27 @@ public class OneMeasurementHistogram extends OneMeasurement {
 		exporter.write(getName(), "AverageLatency", computeTime(mean));
 		exporter.write(getName(), "MinLatency", computeTime((double)min));
 		exporter.write(getName(), "MaxLatency", computeTime((double)max));
-		exporter.write(getName(), "95thPercentileLatency", computeTime((int)getPercentile(histogram, .95)));
-		exporter.write(getName(), "99thPercentileLatency", computeTime((int)getPercentile(histogram, .99)));
-		exporter.write(getName(), "99.9thPercentileLatency", computeTime((int)getPercentile(histogram, .999)));
+		exporter.write(getName(), "95thPercentileLatency", getPercentile(.95));
+		exporter.write(getName(), "99thPercentileLatency", getPercentile(.99));
+		exporter.write(getName(), "99.9thPercentileLatency", getPercentile(.999));
 		
 		for (Integer I : returncodes.keySet()) {
 			int[] val = returncodes.get(I);
 			exporter.write(getName(), "Return=" + I, val[0]);
 		}
-
-		String lower_bound;
-		String upper_bound;
-		for (int i = 0; i < buckets; i++) {
-			if (i == 0)
-				lower_bound = computeTime(0);
-			else
-				lower_bound = computeTime((int)Math.pow(2.0, (double)(i + exp_offset - 1)));
-			upper_bound = computeTime((int)Math.pow(2.0, (double)(i + exp_offset)));
-			exporter.write(getName(), (lower_bound + " - " + upper_bound), histogram[i]);
-			
+		
+		for (int i = 0; i < microhistogram.length; i++) {
+			String key = computeTime(i * 200) + " - " + computeTime((i + 1) * 200);
+			exporter.write(getName(), key, microhistogram[i]);
 		}
-		String overflowtime = computeTime((int)Math.pow(2.0, (double)((buckets + exp_offset - 1))));
+		for (int i = 0; i < millihistogram.length; i++) {
+			int intervalmin = (int)Math.pow(2.0, (double)(i)) * 1000;
+			int intervalmax = (int)Math.pow(2.0, (double)(i + 1)) * 1000;
+			String key = computeTime(intervalmin) + " - " + computeTime(intervalmax);
+			exporter.write(getName(), key, millihistogram[i]);
+		}
+
+		String overflowtime = computeTime((int)Math.pow(2.0, (double)(millihistogramlength)) * 1000);
 		exporter.write(getName(), ">" + overflowtime, histogramoverflow);
 	}
 	
@@ -142,37 +156,49 @@ public class OneMeasurementHistogram extends OneMeasurement {
 			return "";
 		}
 		String avg = computeTime((int)(((double) totallatency) / ((double) operations)));
-		String p99 = computeTime((int)getPercentile(histogram, .99));
+		String p99 = getPercentile(.99);
 		
 		return "[" + getName() + " total=" + operations + "  avg=" + avg + " 99th=" + p99 + "]";
 	}
 	
-	public double getPercentile(int[] data, double percentile) {
+	public String getPercentile(double percentile) {
 		int i;
 		int opcounter = 0;
-		for (i = 0; i < buckets; i++) {
-			opcounter += data[i];
+		for (i = 0; i < microhistogramlength; i++) {
+			opcounter += microhistogram[i];
 			if (((double) opcounter) / ((double) operations) >= percentile) {
-				break;
+				return computeTime((int)(i * 200));
 			}
 		}
-		return (Math.pow(2, (i + 1 + exp_offset)));
+		for (i = 0; i < millihistogramlength; i++) {
+			opcounter += millihistogram[i];
+			if (((double) opcounter) / ((double) operations) >= percentile) {
+				return computeTime((int)(Math.pow(2, i) * 1000));
+			}
+		}
+		return computeTime((int)(Math.pow(2, millihistogramlength) * 1000));
 	}
 			
 	public void encodeJson(JsonStringBuilder builder) {
 		try {
+			builder.addElement("totallatency", new Double((double) totallatency));
 			builder.openSubelement("stats");
-			for (int i = 0; i < histogram.length; i++) {
-				builder.addElement(i + "", new Integer(histogram[i]));
+			for (int i = 0; i < microhistogram.length; i++) {
+				String key = computeTime(i * 200) + " - " + computeTime((i + 1) * 200);
+				builder.addElement(key, new Integer(microhistogram[i]));
+			}
+			for (int i = 0; i < millihistogram.length; i++) {
+				int intervalmin = (int)Math.pow(2.0, (double)(i)) * 1000;
+				int intervalmax = (int)Math.pow(2.0, (double)(i + 1)) * 1000;
+				String key = computeTime(intervalmin) + " - " + computeTime(intervalmax);
+				builder.addElement(key, new Integer(millihistogram[i]));
 			}
 			builder.closeSubelement();
 			
 			builder.openSubelement("returncodes");
-			Iterator<Integer> itr = returncodes.keySet().iterator();
-			while (itr.hasNext()) {
-				Integer i = itr.next();
-				int[] list = returncodes.get(i);
-				builder.addElement(i.toString(), new Integer(list[0]));
+			for (Integer I : returncodes.keySet()) {
+				int[] val = returncodes.get(I);
+				builder.addElement(I.toString(), new Integer(val[0]));
 			}
 			builder.closeSubelement();
 		} catch (JsonGenerationException e) {
@@ -181,42 +207,53 @@ public class OneMeasurementHistogram extends OneMeasurement {
 	}
 	
 	public void decodeJson(JsonParser p) {
-		try {
-			p.nextToken();
-			p.nextToken();
-			if (p.getCurrentName().equals("stats")) {
+		synchronized(lock) {
+			try {
 				p.nextToken();
-				while(p.nextToken() != JsonToken.END_OBJECT) {
-					int index = new Integer(p.getCurrentName()).intValue();
-					JsonToken token = p.nextToken();
-					if	(token == JsonToken.VALUE_NUMBER_INT) {
-						histogram[index] += p.getIntValue();
-						operations += p.getIntValue();
-					} else {
-						//LOG.error("Field for " + key + " did not match type");
+				p.nextToken();
+				if (p.getCurrentName().equals("totallatency")) {
+					p.nextToken();
+					totallatency += p.getLongValue();
+					p.nextToken();
+				}
+				if (p.getCurrentName().equals("stats")) {
+					p.nextToken();
+					int statnum = 0;
+					while(p.nextToken() != JsonToken.END_OBJECT) {
+						JsonToken token = p.nextToken();
+						if	(token == JsonToken.VALUE_NUMBER_INT) {
+							if (statnum < microhistogramlength)
+								microhistogram[statnum] += p.getIntValue();
+							else
+								millihistogram[statnum - microhistogramlength] += p.getIntValue();
+							operations += p.getIntValue();
+							statnum++;
+						} else {
+							//LOG.error("Field for " + key + " did not match type");
+						}
 					}
 				}
-			}
-			p.nextToken();
-			if (p.getCurrentName().equals("returncodes")) {
 				p.nextToken();
-				while (p.nextToken() != JsonToken.END_OBJECT) {
-					Integer code = new Integer(p.getCurrentName());
-					int[] list = new int[1];
-					JsonToken token = p.nextToken();
-					list[0] = p.getIntValue();
-					if	(token == JsonToken.VALUE_NUMBER_INT) {
-						if (!returncodes.containsKey(code))
-							list[0] += returncodes.get(code)[0];
-						returncodes.put(code, list);
-					} else {
-						//LOG.error("Field for " + key + " did not match type");
+				if (p.getCurrentName().equals("returncodes")) {
+					p.nextToken();
+					while (p.nextToken() != JsonToken.END_OBJECT) {
+						Integer code = new Integer(p.getCurrentName());
+						int[] list = new int[1];
+						JsonToken token = p.nextToken();
+						list[0] = p.getIntValue();
+						if	(token == JsonToken.VALUE_NUMBER_INT) {
+							if (returncodes.containsKey(code))
+								list[0] += returncodes.get(code)[0];
+							returncodes.put(code, list);
+						} else {
+							//LOG.error("Field for " + key + " did not match type");
+						}
 					}
 				}
+				
+			} catch (JsonParseException e) {
+			} catch (IOException e) {
 			}
-			
-		} catch (JsonParseException e) {
-		} catch (IOException e) {
 		}
 	}
 }
