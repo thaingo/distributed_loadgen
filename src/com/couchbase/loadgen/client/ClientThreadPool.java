@@ -29,7 +29,11 @@ public class ClientThreadPool extends ThreadGroup {
 	public ClientThreadPool(int threadcount, Workload workload, String dbname) {
 		super("ThreadPool-" + (threadPoolID++));
 		this.threads = new LinkedList<PooledThread>();
-		this.ops = ((Integer)Config.getConfig().get(Config.OP_COUNT)).intValue();
+		if (((Boolean)Config.getConfig().get(Config.DO_TRANSACTIONS)).booleanValue()) {
+			this.ops = ((Integer)Config.getConfig().get(Config.OP_COUNT)).intValue();
+		} else {
+			this.ops = ((Integer)Config.getConfig().get(Config.RECORD_COUNT)).intValue();
+		}
 		this.lastTarget = ((Integer)Config.getConfig().get(Config.TARGET));
 		this.opsdone = 0;
 		this.st = System.currentTimeMillis();
@@ -77,13 +81,17 @@ public class ClientThreadPool extends ThreadGroup {
 				}
 			}
 		}
-		if (!isAlive || ops <= 0) {
+		if (!isAlive) {
 			return false;
+		} else if (ops == -1){
+			opsdone++;
+			return true;
+		} else if (ops <= opsdone) {
+			return false;
+		} else {
+			opsdone++;
+			return true;
 		}
-		//System.out.println("Doing operation");
-		ops--;
-		opsdone++;
-		return true;
 	}
 
 	public synchronized void close() {
