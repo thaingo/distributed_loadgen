@@ -19,7 +19,6 @@ import net.spy.memcached.BinaryConnectionFactory;
 import net.spy.memcached.CASResponse;
 import net.spy.memcached.MemcachedClient;
 
-
 public class SpymemcachedClient extends Memcached {
 	private static final Logger LOG = LoggerFactory.getLogger(SpymemcachedClient.class);
 	public static final String CLASSNAME = "com.couchbase.loadgen.memcached.SpymemcachedClient";
@@ -87,7 +86,6 @@ public class SpymemcachedClient extends Memcached {
 	@Override
 	public int get(String key, Object value) {
 		Future<Object> f = client.asyncGet(key);
-
 		try {
 			if (f.get() == null) {
 				System.out.println("GET: error getting data");
