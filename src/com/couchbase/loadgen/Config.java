@@ -24,7 +24,6 @@ public class Config {
 	public static final String DO_TRANSACTIONS = "dotransactions";
 	public static final String EXPORTER = "exporter";
 	public static final String EXPORT_FILE = "exportfile";
-	public static final String HISTOGRAM_BUCKET = "histogram.buckets";
 	public static final String INSERT_COUNT = "insertcount";
 	public static final String INSERT_ORDER = "insertorder";
 	public static final String INSERT_START = "insertstart";
@@ -60,18 +59,17 @@ public class Config {
 
 	private Config() {
 		properties = new HashMap<String, Object>();
-		properties.put(CHURN_DELTA, new Integer(100000));
+		properties.put(CHURN_DELTA, new Integer(1));
 		properties.put(DB, new String());
 		properties.put(DO_TRANSACTIONS, new Boolean(true));
 		properties.put(EXPORTER, "com.couchbase.loadgen.measurements.exporter.TextMeasurementsExporter");
 		properties.put(EXPORT_FILE, new String());
-		properties.put(HISTOGRAM_BUCKET, new Integer(20));
 		properties.put(INSERT_ORDER, "hashed");
 		properties.put(INSERT_START, new Integer(0));
 		properties.put(KEY_PREFIX, "user");
 		properties.put(LABEL, "");
 		properties.put(MEASUREMENT_TYPE, "histogram");
-		properties.put(MEMCACHED_ADDRESS, "10.2.1.11");
+		properties.put(MEMCACHED_ADDRESS, "10.2.1.15");
 		properties.put(MEMCACHED_PORT, new Integer(11211));
 		properties.put(MEMADD, new Double(0.0));
 		properties.put(MEMAPPEND, new Double(0.0));
@@ -85,13 +83,13 @@ public class Config {
 		properties.put(MEMREPLACE, new Double(0.0));
 		properties.put(MEMSET, new Double(0.0));
 		properties.put(MEMUPDATE, new Double(0.0));
-		properties.put(OP_COUNT, new Integer(100000));
+		properties.put(OP_COUNT, new Integer(10000));
 		properties.put(PRINT_STATS_INTERVAL, new Integer(5));
 		properties.put(PROTOCOL, "ascii");
 		properties.put(RECORD_COUNT, new Integer(10000));
-		properties.put(REQUEST_DISTRIBUTION, "churn");
+		properties.put(REQUEST_DISTRIBUTION, "zipfian");
 		properties.put(TARGET, new Integer(5000));
-		properties.put(THREAD_COUNT, new Integer(16));
+		properties.put(THREAD_COUNT, new Integer(1));
 		properties.put(WORKING_SET, new Integer(5));
 		properties.put(VALUE_LENGTH, new Integer(256));
 	}
