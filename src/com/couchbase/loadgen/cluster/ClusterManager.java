@@ -141,6 +141,12 @@ public class ClusterManager implements CallBack {
 		gh.sendMessage(GROUP_NAME, message.encode());
 	}
 	
+	public boolean getClusterStatus() {
+		if (nodesrunning == 0)
+			return false;
+		return true;
+	}
+	
 	public boolean startLoadGeneration() {
 		if (nodesrunning == 0) {
 			nodesrunning = gms.getGroupHandle().getCurrentView().size();

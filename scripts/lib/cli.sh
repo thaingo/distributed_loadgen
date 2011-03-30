@@ -39,6 +39,8 @@ elif [ "server-list" == "$COMMAND" ]; then
     curl "http://$HOST:$PORT/cluster/server-list";
 elif [ "get-config" == "$COMMAND" ]; then
     curl "http://$HOST:$PORT/cluster/get-config";
+elif [ "get-status" == "$COMMAND" ]; then
+    curl "http://$HOST:$PORT/cluster/get-status";
 elif [ "set-config" == "$COMMAND" ]; then
     echo "NOT IMPLEMENTED";
 elif [ "get-value" == "$COMMAND" ]; then
